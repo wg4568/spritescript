@@ -1,0 +1,19 @@
+LABEL FONT "bold 32px Comic Sans MS"
+
+ADD		    a, b -> a+b
+SUBTRACT	a, b -> a-b
+MULTIPLY	a, b -> a*b
+DIVIDE		a, b -> a/b
+ABS		    a -> |a|
+FLOOR		a -> Math.floor(a)
+CEIL		a -> Math.ceil(a)
+MODULO		a, b -> a%b
+
+PUSH <Val>  -> Val
+POP
+
+
+function IsCharKeyword(char) {
+	return /^[a-zA-Z]+$/.test(char) || char == "_";
+}
+

@@ -1,0 +1,14 @@
+{
+    "include": ["src/**/*", "oldscript.ts"],
+    "compileOnSave": false,
+
+    "compilerOptions": {
+        "target": "es6",
+        "module": "commonjs",
+        "strict": true,
+        "outDir": "dist",
+        "lib": ["dom", "es6"],
+        "esModuleInterop": true,
+        "resolveJsonModule": true
+    }
+}
