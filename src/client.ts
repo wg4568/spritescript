@@ -1,3 +1,4 @@
+import { triggerAsyncId } from "async_hooks";
 import { Compile, SpriteScript } from "./spritescript";
 
 var constants = {
@@ -14,7 +15,7 @@ var bytes = Compile(
 
     PUSH USERNAME
     PUSH 0
-    PUSH 0
+    PUSH 32
     FILL_TEXT
 
     PUSH ARG0
@@ -25,7 +26,7 @@ var bytes = Compile(
 
     BEGIN_PATH
     PUSH 0
-    PUSH 0
+    PUSH 32
     PUSH 100
     PUSH 100
     RECT
@@ -36,10 +37,19 @@ var bytes = Compile(
 
 var canvas = document.getElementById("canvas") as HTMLCanvasElement;
 var ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
-var script = new SpriteScript(bytes);
+var script = new SpriteScript(bytes, { cache: true, width: 100, height: 132 });
+script.renderCache([255, 0, 0]);
 
+var td = Date.now();
+var avg = 0;
+var c = 0;
 setInterval(() => {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    script.render(ctx, { x: 100, y: 100 }, [80, 160, 24]);
-}, 16);
+    for (var i = 0; i < 1000; i++) script.render(ctx, { x: 100, y: 100 });
+
+    avg += Date.now() - td;
+    c++;
+    td = Date.now();
+    console.log(avg / c);
+});

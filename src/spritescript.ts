@@ -262,15 +262,30 @@ export class SpriteScript {
     public readonly bytecode: Uint8Array;
     public readonly labels: string[];
     public readonly startIndex: number;
-    public cache: boolean;
+    public canvas: HTMLCanvasElement | null = null;
 
-    constructor(bytecode: Uint8Array, cache: boolean = false) {
+    constructor(
+        bytecode: Uint8Array,
+        options: { cache: boolean; width?: number; height?: number } = {
+            cache: false
+        }
+    ) {
         this.bytecode = bytecode;
-        this.cache = cache;
 
         var ld = SpriteScript.GetLabels(this.bytecode);
         this.labels = ld[1];
         this.startIndex = ld[0];
+
+        if (options.cache) {
+            if (!options.width || !options.height)
+                throw new Error(
+                    "Width and height must be specified when using cache"
+                );
+
+            this.canvas = document.createElement("canvas");
+            this.canvas.width = options.width;
+            this.canvas.height = options.height;
+        }
     }
 
     render(
@@ -278,22 +293,54 @@ export class SpriteScript {
         posn: { x: number; y: number },
         args: number[] = []
     ) {
+        if (this.canvas) {
+            if (args.length != 0)
+                throw new Error(
+                    "Args not permitted when using cache, use renderCache instead"
+                );
+            ctx.drawImage(this.canvas, posn.x, posn.y);
+        } else {
+            SpriteScript.Render(
+                this.bytecode,
+                this.labels,
+                args,
+                this.startIndex,
+                ctx,
+                posn
+            );
+        }
+    }
+
+    renderCache(args: number[] = []) {
+        if (!this.canvas) throw new Error("Cache not enabled on this script");
+        var ctx = this.canvas.getContext("2d") as CanvasRenderingContext2D;
+
         SpriteScript.Render(
             this.bytecode,
             this.labels,
             args,
             this.startIndex,
             ctx,
-            posn
+            { x: 0, y: 0 }
         );
     }
 
-    static FromBase64(b64: string): SpriteScript {
-        return new SpriteScript(Base64.toUint8Array(b64));
+    static FromBase64(
+        b64: string,
+        options: { cache: boolean; width?: number; height?: number } = {
+            cache: false
+        }
+    ): SpriteScript {
+        return new SpriteScript(Base64.toUint8Array(b64), options);
     }
 
-    static FromScript(script: string): SpriteScript {
-        return new SpriteScript(Compile(script));
+    static FromScript(
+        script: string,
+        options: { cache: boolean; width?: number; height?: number } = {
+            cache: false
+        }
+    ): SpriteScript {
+        return new SpriteScript(Compile(script), options);
     }
 
     static StackNumber(stack: number[], idx: number): number {
