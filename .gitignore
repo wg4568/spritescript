@@ -1,4 +1,4 @@
 node_modules
 .prettierrc
 config.json
-dist
+dist/bundle.js
