@@ -1,5 +1,7 @@
+import { generateKeyPair } from "crypto";
 import { StreamPriorityOptions } from "http2";
 import { Base64 } from "js-base64";
+import { builtinModules } from "module";
 import { runInThisContext } from "vm";
 
 export class RuntimeError extends Error {
@@ -16,6 +18,7 @@ export class CompileError extends Error {
 
 export enum Instruction {
     PUSH,
+    PUSH_ARG,
     POP,
 
     ADD,
@@ -189,6 +192,21 @@ export function Compile(
         return token;
     }
 
+    function parseKeyword(keyword: string) {
+        if (keyword == "TRUE") return 1;
+        else if (keyword == "FALSE") return 0;
+        else if (Object.values(Enum).includes(keyword))
+            return Enum[keyword as keyof typeof Enum];
+        else if (keyword in constants) return constants[keyword];
+        return labelIndexStore[keyword];
+    }
+
+    function getArgNumber(keyword: string) {
+        var m = keyword.match(/ARG([0-9]+)/);
+        if (m && m.length == 2) return Number(m[1]);
+        else return -1;
+    }
+
     while (i < tokens.length) {
         let first: [Type, string] = getStrictType(i, Type.Keyword);
 
@@ -210,16 +228,17 @@ export function Compile(
             case "PUSH":
                 let value = tokens[++i];
                 let number = new Float32Array(1);
-                if (value[0] == Type.Keyword) {
-                    let keyword: string = value[1];
-                    if (keyword == "TRUE") number[0] = 1;
-                    else if (keyword == "FALSE") number[0] = 0;
-                    else if (Object.values(Enum).includes(keyword))
-                        number[0] = Enum[keyword as keyof typeof Enum];
-                    else if (keyword in constants)
-                        number[0] = constants[keyword];
-                    else number[0] = labelIndexStore[keyword];
-                } else number[0] = Number(value[1]);
+                let argNumber = getArgNumber(value[1]);
+
+                if (argNumber != -1) {
+                    commands.push(Instruction.PUSH_ARG);
+                    commands.push(argNumber);
+                    break;
+                }
+                if (value[0] == Type.Keyword)
+                    number[0] = parseKeyword(value[1]);
+                else number[0] = Number(value[1]);
+
                 commands.push(Instruction.PUSH);
                 commands.push(...new Uint8Array(number.buffer));
                 break;
@@ -254,10 +273,15 @@ export class SpriteScript {
         this.startIndex = ld[0];
     }
 
-    render(ctx: CanvasRenderingContext2D, posn: { x: number; y: number }) {
+    render(
+        ctx: CanvasRenderingContext2D,
+        posn: { x: number; y: number },
+        args: number[] = []
+    ) {
         SpriteScript.Render(
             this.bytecode,
             this.labels,
+            args,
             this.startIndex,
             ctx,
             posn
@@ -315,6 +339,7 @@ export class SpriteScript {
     static Render(
         binary: Uint8Array,
         labels: string[],
+        args: number[],
         idx: number,
         ctx: CanvasRenderingContext2D,
         posn: { x: number; y: number }
@@ -326,7 +351,14 @@ export class SpriteScript {
         var stack: number[] = [];
 
         while (idx < binary.length) {
-            idx = this.ExecuteInstruction(binary, stack, labels, idx, ctx);
+            idx = this.ExecuteInstruction(
+                binary,
+                stack,
+                labels,
+                args,
+                idx,
+                ctx
+            );
         }
 
         ctx.restore();
@@ -337,6 +369,7 @@ export class SpriteScript {
         binary: Uint8Array,
         stack: number[],
         labels: string[],
+        args: number[],
         idx: number,
         ctx: CanvasRenderingContext2D
     ): number {
@@ -348,6 +381,17 @@ export class SpriteScript {
                 let num = new Float32Array(p)[0];
                 stack.push(num);
                 idx += 4;
+                break;
+            }
+            case Instruction.PUSH_ARG: {
+                let argNum = binary[idx + 1];
+                if (argNum >= args.length)
+                    throw new RuntimeError(
+                        `Cannot get arg ${argNum}, arglist too short`
+                    );
+
+                stack.push(args[argNum]);
+                idx++;
                 break;
             }
             case Instruction.POP: {
