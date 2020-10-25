@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>SpriteScript Editor</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+    </head>
+
+    <style>
+        body {
+            margin: 0px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        #editor {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0px;
+            left: 0px;
+        }
+
+        #viewer {
+            position: absolute;
+            top: 0px;
+            right: 0px;
+        }
+
+        #controls {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            z-index: 4;
+        }
+
+        #viewer {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            z-index: 4;
+        }
+
+        #compile {
+            position: absolute;
+            bottom: 10px;
+            right: 30px;
+            z-index: 4;
+        }
+    </style>
+
+    <body>
+        <div id="editor"></div>
+
+        <canvas id="viewer"></canvas>
+
+        <button id="compile" onclick="Editor.Compile()">Compile</button>
+    </body>
+
+    <script src="bundle.js"></script>
+</html>

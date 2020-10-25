@@ -1,55 +1,124 @@
-import { triggerAsyncId } from "async_hooks";
-import { Compile, SpriteScript } from "./spritescript";
+import { CompileError, SpriteScript } from "./spritescript";
+import ace from "ace-builds";
+import "brace/theme/monokai";
 
-var constants = {
-    PI: Math.PI
-};
+const canvas = document.getElementById("viewer") as HTMLCanvasElement;
+const ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
+const editor = ace.edit("editor");
+editor.setTheme("ace/theme/monokai");
+editor.setShowPrintMargin(false);
+editor.setFontSize("18px");
 
-var bytes = Compile(
-    `
-    LABEL FONT "bold 32px Comic Sans MS"
-    LABEL USERNAME "william"
+var canvasSize = { h: 300, w: 300 };
+var canvasCenter = { x: canvasSize.w / 2, y: canvasSize.h / 2 };
+var mouse = { x: 0, y: 0 };
 
-    PUSH FONT
-    SET_FONT
+var isDragging = false;
+var dragStart = { x: 0, y: 0, a: 0, b: 0 };
+canvas.addEventListener("mousedown", (e) => {
+    var rect = canvas.getBoundingClientRect();
+    var x = e.clientX - rect.left;
+    var y = e.clientY - rect.top;
 
-    PUSH USERNAME
-    PUSH 0
-    PUSH 32
-    FILL_TEXT
+    if (!isDragging) {
+        isDragging = true;
+        dragStart = { x: x, y: y, a: canvasCenter.x, b: canvasCenter.y };
+    }
+});
 
-    PUSH ARG0
-    PUSH ARG1
-    PUSH ARG2
-    PUSH 1
-    SET_FILL_COLOR
+canvas.addEventListener(
+    "mousemove",
+    (e) => {
+        var rect = canvas.getBoundingClientRect();
+        var x = e.clientX - rect.left;
+        var y = e.clientY - rect.top;
 
-    BEGIN_PATH
-    PUSH 0
-    PUSH 32
-    PUSH 100
-    PUSH 100
-    RECT
-    FILL
-    `,
-    constants
+        if (isDragging) {
+            canvasCenter = {
+                x: x - dragStart.x + dragStart.a,
+                y: y - dragStart.y + dragStart.b
+            };
+            Render();
+        }
+    },
+    false
 );
 
-var canvas = document.getElementById("canvas") as HTMLCanvasElement;
-var ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
-var script = new SpriteScript(bytes, { cache: true, width: 100, height: 132 });
-script.renderCache([255, 0, 0]);
-
-var td = Date.now();
-var avg = 0;
-var c = 0;
-setInterval(() => {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    for (var i = 0; i < 1000; i++) script.render(ctx, { x: 100, y: 100 });
-
-    avg += Date.now() - td;
-    c++;
-    td = Date.now();
-    console.log(avg / c);
+canvas.addEventListener("mouseup", () => {
+    isDragging = false;
 });
+
+editor.on("change", () => {
+    localStorage.setItem("code", editor.getValue());
+    try {
+        Render();
+    } catch (err) {
+        if (err instanceof CompileError) compileError(err);
+    }
+});
+
+function compileError(err: CompileError) {
+    // var code = editor.getValue();
+    // console.log(err.position);
+    // var real = 0;
+    // var magic = 0;
+    // while (magic < err.position) {
+    //     if (code[real] != " " && code[real] != "\n" && code[real] != '"')
+    //         magic++;
+    //     real++;
+    // }
+    // real += 2;
+    // while (code[real] == " " || code[real] == "\n" || code[real] == '"') real++;
+    // console.log(real, [code.substr(real + 1, 10)]);
+}
+
+function getByteCode() {
+    var code: string = editor.getValue();
+    var script: SpriteScript = SpriteScript.FromScript(code);
+    return script;
+}
+
+function Render() {
+    canvas.width = canvasSize.w;
+    canvas.height = canvasSize.h;
+
+    ctx.save();
+
+    ctx.fillStyle = "white";
+    ctx.strokeStyle = "grey";
+
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    ctx.beginPath();
+    ctx.moveTo(canvasCenter.x, 0);
+    ctx.lineTo(canvasCenter.x, canvas.height);
+    ctx.moveTo(0, canvasCenter.y);
+    ctx.lineTo(canvas.width, canvasCenter.y);
+    ctx.stroke();
+
+    ctx.restore();
+
+    var script = getByteCode();
+    script.render(ctx, canvasCenter);
+}
+
+export function Compile() {
+    var script = SpriteScript.FromScript(editor.getValue());
+
+    const elem = document.createElement("textarea");
+    elem.value = script.toBase64();
+
+    document.body.appendChild(elem);
+    elem.select();
+
+    document.execCommand("copy");
+    document.body.removeChild(elem);
+
+    alert("Base64 copied!");
+}
+
+window.onload = () => {
+    var code = localStorage.getItem("code");
+    if (code) editor.setValue(code, -1);
+    Render();
+};

@@ -17,7 +17,7 @@ module.exports = {
     output: {
         filename: "bundle.js",
         path: path.resolve(__dirname, "dist"),
-        library: "SS"
+        library: "Editor"
     },
     optimization: {
         minimize: false

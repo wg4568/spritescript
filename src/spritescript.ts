@@ -1,8 +1,4 @@
-import { generateKeyPair } from "crypto";
-import { StreamPriorityOptions } from "http2";
 import { Base64 } from "js-base64";
-import { builtinModules } from "module";
-import { runInThisContext } from "vm";
 
 export class RuntimeError extends Error {
     constructor(msg: string) {
@@ -150,7 +146,7 @@ export function Compile(
         if (first == '"') {
             i++;
             type = Type.String;
-            while (code[i] != '"') {
+            while (code[i] != '"' && code[i] != "\n") {
                 current += code[i];
                 i++;
             }
@@ -264,9 +260,18 @@ export class SpriteScript {
     public readonly startIndex: number;
     public canvas: HTMLCanvasElement | null = null;
 
+    public static Debug: boolean = false;
+    public static readonly Constants = {
+        PI: Math.PI
+    };
+
     constructor(
         bytecode: Uint8Array,
-        options: { cache: boolean; width?: number; height?: number } = {
+        options: {
+            cache?: boolean;
+            width?: number;
+            height?: number;
+        } = {
             cache: false
         }
     ) {
@@ -325,10 +330,16 @@ export class SpriteScript {
         );
     }
 
+    toBase64(): string {
+        return Base64.fromUint8Array(this.bytecode);
+    }
+
     static FromBase64(
         b64: string,
-        options: { cache: boolean; width?: number; height?: number } = {
-            cache: false
+        options?: {
+            cache?: boolean;
+            width?: number;
+            height?: number;
         }
     ): SpriteScript {
         return new SpriteScript(Base64.toUint8Array(b64), options);
@@ -336,11 +347,16 @@ export class SpriteScript {
 
     static FromScript(
         script: string,
-        options: { cache: boolean; width?: number; height?: number } = {
-            cache: false
+        options?: {
+            cache?: boolean;
+            width?: number;
+            height?: number;
         }
     ): SpriteScript {
-        return new SpriteScript(Compile(script), options);
+        return new SpriteScript(
+            Compile(script, SpriteScript.Constants),
+            options
+        );
     }
 
     static StackNumber(stack: number[], idx: number): number {
@@ -694,6 +710,7 @@ export class SpriteScript {
             }
             case Instruction.MEASURE_TEXT: {
                 let txt = SpriteScript.StackString(stack, labels, 0);
+                stack.pop();
                 stack.push(ctx.measureText(txt).width);
                 break;
             }
@@ -762,6 +779,7 @@ export class SpriteScript {
                 break;
             }
         }
+        if (SpriteScript.Debug) console.log(idx, Instruction[instr], stack);
         return ++idx;
     }
 }
