@@ -13,6 +13,13 @@ var canvasSize = { h: 300, w: 300 };
 var canvasCenter = { x: canvasSize.w / 2, y: canvasSize.h / 2 };
 var mouse = { x: 0, y: 0 };
 
+var args: (number | string)[] = [];
+
+export function Args(a: (number | string)[]) {
+    args = a;
+    Render();
+}
+
 var isDragging = false;
 var dragStart = { x: 0, y: 0, a: 0, b: 0 };
 canvas.addEventListener("mousedown", (e) => {
@@ -99,7 +106,7 @@ function Render() {
     ctx.restore();
 
     var script = getByteCode();
-    script.render(ctx, canvasCenter);
+    script.render(ctx, canvasCenter, args);
 }
 
 export function Compile() {
