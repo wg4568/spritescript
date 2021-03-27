@@ -2,6 +2,8 @@
 
 Spritescript is a serialization library for HTML5 canvas draw commands. It was written to allow graphics to be generated server-side, without the need to transmit large image files. "Why not use a vector format?" Because SpriteScript allows for variable rendering, and integrates nicely into an HTML5 canvas project.
 
+![SpriteScript embedded editor](https://gardna.net/f/editor.png)
+
 Here's an example.
 
 Write the following code in the built-in editor:
@@ -86,3 +88,6 @@ var sprite = SpriteScript.FromBase64("...");
 sprite.render(canvasContext, { x: 100, y: 100 });
 ```
 
+Your sprite will be rendered!
+
+![Sprite with coordinate axis rendered](https://gardna.net/f/william.png)
