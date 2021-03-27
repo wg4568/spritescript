@@ -6,7 +6,7 @@ Here's an example.
 
 Write the following code in the built-in editor:
 
-```
+`
 # Tank Sprite
 # username, angle, red, green, blue
 
@@ -70,16 +70,19 @@ PUSH -2
 DIVIDE
 PUSH 70
 FILL_TEXT
-STROKE_TEXT```
+STROKE_TEXT
+`
 
 Click compile, and the base64 will be copied.
 
-```Ahdib2xkIDMycHggQ29taWMgU2FucyBNUwdXaWxsaWFtAAAAAAAnAAAANEMAAAA0QwAAADRDAAAAgD8UAAAAoEAPLAAAAAAAAAAAoMEAAABwwgAAACBCHTAxAAAAf0MAAAAAAAAAAAAAAAAAgD8ULAAAAAAAAAAAAAAAAAAgQgAAAAAAANsPSUAAAAAAQAUcMDEAAAAAAAAAAIC/BScAAAAAABkAAAAAQA8AAACAPwAAAIA/KwAAAADABgAAAIxCIyQ=```
+`
+Ahdib2xkIDMycHggQ29taWMgU2FucyBNUwdXaWxsaWFtAAAAAAAnAAAANEMAAAA0QwAAADRDAAAAgD8UAAAAoEAPLAAAAAAAAAAAoMEAAABwwgAAACBCHTAxAAAAf0MAAAAAAAAAAAAAAAAAgD8ULAAAAAAAAAAAAAAAAAAgQgAAAAAAANsPSUAAAAAAQAUcMDEAAAAAAAAAAIC/BScAAAAAABkAAAAAQA8AAACAPwAAAIA/KwAAAADABgAAAIxCIyQ=
+`
 
 This blob encapsulates the entire instruction set. Load up a canvas object in JavaScript and do the following:
 
-```javascript
+`javascript
 var sprite = SpriteScript.FromBase64("...");
 sprite.render(canvasContext, { x: 100, y: 100 });
-```
+`
 
