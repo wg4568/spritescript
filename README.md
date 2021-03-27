@@ -81,7 +81,7 @@ Click compile, and the base64 will be copied.
 Ahdib2xkIDMycHggQ29taWMgU2FucyBNUwdXaWxsaWFtAAAAAAAnAAAANEMAAAA0QwAAADRDAAAAgD8UAAAAoEAPLAAAAAAAAAAAoMEAAABwwgAAACBCHTAxAAAAf0MAAAAAAAAAAAAAAAAAgD8ULAAAAAAAAAAAAAAAAAAgQgAAAAAAANsPSUAAAAAAQAUcMDEAAAAAAAAAAIC/BScAAAAAABkAAAAAQA8AAACAPwAAAIA/KwAAAADABgAAAIxCIyQ=
 ```
 
-This blob encapsulates the entire instruction set. Load up a canvas object in JavaScript and do the following:
+This blob encapsulates the entire instruction set. Note how it could be easily transmitted or stored over the network either as raw binary or in a string format. Load up a canvas object in JavaScript and do the following:
 
 ```javascript
 var sprite = SpriteScript.FromBase64("...");
@@ -91,3 +91,28 @@ sprite.render(canvasContext, { x: 100, y: 100 });
 Your sprite will be rendered!
 
 ![Sprite with coordinate axis rendered](https://gardna.net/f/william.png)
+
+SpriteScript also supports arguments passed at render, using the `ARG` keyword. These are not yet supported by the editor, but can be used as follows:
+
+```
+PUSH ARG0
+PUSH ARG1
+PUSH ARG2
+SET_FILL_COLOR
+
+BEGIN_PATH
+PUSH 0
+PUSH 0
+PUSH 100
+PUSH 100
+RECT
+FILL
+```
+
+```javascript
+var args = [255, 0, 0]; // [ ARG0, ARG1, ARG2 ]
+var sprite = SpriteScript.FromBase64("...");
+sprite.render(canvasContext, { x: 100, y: 100 }, args);
+```
+
+This will draw a rectangle with the color specified by the first three arguments passed to the render function. Args can also be strings, granted they are used in the correct context.
