@@ -1,10 +1,10 @@
-# spritescript
+# SpriteScript
 
 Spritescript is a serialization library for HTML5 canvas draw commands. It was written to allow graphics to be generated server-side, without the need to transmit large image files. "Why not use a vector format?" Because SpriteScript allows for variable rendering, and integrates nicely into an HTML5 canvas project.
 
 ![SpriteScript embedded editor](https://gardna.net/f/editor.png)
 
-Here's an example.
+## Example
 
 Write the following code in the built-in editor:
 
@@ -116,3 +116,100 @@ sprite.render(canvasContext, { x: 100, y: 100 }, args);
 ```
 
 This will draw a rectangle with the color specified by the first three arguments passed to the render function. Args can also be strings, granted they are used in the correct context.
+
+## Full API
+
+```
+SET_LINE_CAP            butt round square
+SET_LINE_DASH_OFFSET    number
+SET_LINE_JOIN           bevel round miter
+SET_LINE_WIDTH          number
+SET_MITER_LIMIT         number
+
+SET_SHADOW_BLUR         number
+SET_SHADOW_COLOR        r, g, b, a
+SET_SHADOW_OFFSET       x, y
+
+SET_FILL_COLOR          r, g, b, a
+SET_STROKE_COLOR        r, g, b, a
+
+SET_GLOBAL_ALPHA                number
+SET_GLOBAL_COMPOSITE_OPERATION  <operation>
+SET_IMAGE_SMOOTHING_ENABLED     boolean
+
+SET_FONT                string
+SET_TEXT_ALIGN          left right center start end
+SET_TEXT_BASELINE       top hanging middle alphabetic ideographic bottom
+
+ARC		    x, y, radius, startAngle, endAngle
+RECT		  x, y, width, height
+ELLIPSE		x, y, radiusX, radiusY, rotation, startAngle, endAngle
+
+ARC_TO		    x1, y1, x2, y2, radius
+BEZIER_TO	    cp1x, cp1y, cp2x, cp2y, x, y
+QUADRATIC_TO	cpx, cpy, x, y
+
+DRAW_IMAGE	image, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight
+
+FILL_TEXT	      text, x, y
+STROKE_TEXT     text, x, y
+
+LINE_TO		x, y
+MOVE_TO		x, y
+
+ROTATE		 angle
+SCALE		   x, y
+TRANSFORM	 a, b, c, d, e, f
+TRANSLATE	 x, y
+
+MEASURE_TEXT	text -> width
+
+ADD		      a, b -> a+b
+SUBTRACT	  a, b -> a-b
+MULTIPLY	  a, b -> a*b
+DIVIDE		  a, b -> a/b
+MODULO		  a, b -> a%b
+EXPONENT    a, b -> Math.pow(a, b)
+ABS		      a -> |a|
+FLOOR		    a -> Math.floor(a)
+CEIL		    a -> Math.ceil(a)
+
+PUSH <Val>  -> Val
+POP
+
+BEGIN_PATH
+CLOSE_PATH
+
+RESTORE
+CLIP
+FILL
+STROKE
+
+<operations>
+    source-over
+    source-in
+    source-out
+    source-atop
+    destination-over
+    destination-in
+    destination-out
+    destination-atop
+    lighter
+    copy
+    xor
+    multiply
+    screen
+    overlay
+    darken
+    lighten
+    color-dodge
+    color-burn
+    hard-light
+    soft-light
+    difference
+    exclusion
+    hue
+    saturation
+    color
+    luminosity
+```
