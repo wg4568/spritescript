@@ -2,7 +2,7 @@
 
 Spritescript is a serialization library for HTML5 canvas draw commands. It was written to allow graphics to be generated server-side, without the need to transmit large image files. "Why not use a vector format?" Because SpriteScript allows for variable rendering, and integrates nicely into an HTML5 canvas project.
 
-![SpriteScript embedded editor](https://gardna.net/f/editor.png)
+![SpriteScript embedded editor](https://gardna.net/f/cdn/spritescript/editor.png)
 
 ## Example
 
@@ -90,7 +90,7 @@ sprite.render(canvasContext, { x: 100, y: 100 });
 
 Your sprite will be rendered!
 
-![Sprite with coordinate axis rendered](https://gardna.net/f/william.png)
+![Sprite with coordinate axis rendered](https://gardna.net/f/cdn/spritescript/william.png)
 
 SpriteScript also supports arguments passed at render, using the `ARG` keyword. These are not yet supported by the editor, but can be used as follows:
 
